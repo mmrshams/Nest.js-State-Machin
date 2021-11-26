@@ -1,0 +1,9 @@
+FROM node:14.15-alpine
+
+WORKDIR /app/venom
+
+# Install build (dev) dependencies
+COPY package.json yarn.lock ./ 
+RUN yarn install --non-interactive --ignore-scripts
+
+CMD ["yarn", "start:dev"]

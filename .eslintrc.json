@@ -1,0 +1,20 @@
+{
+  "extends": [
+    "./node_modules/gts/",
+    "prettier/@typescript-eslint",
+    "plugin:prettier/recommended"
+  ],
+  "root": true,
+  "env": {
+    "node": true,
+    "jest": true
+  },
+  "rules": {
+    "node/no-unpublished-import": [
+      "error",
+      {
+        "allowModules": ["@nestjs/testing", "supertest"]
+      }
+    ]
+  }
+}

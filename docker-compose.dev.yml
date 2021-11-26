@@ -1,0 +1,10 @@
+version: '3'
+services:
+  venom:
+    build:
+      context: .
+      dockerfile: Dockerfile.dev
+    restart: 'no'
+    volumes:
+      - /app/venom/node_modules
+      - .:/app/venom

@@ -1,0 +1,106 @@
+[
+  {
+    "key": "main_flow",
+    "ingress": {
+      "grpc": {
+        "method": "GetChat",
+        "service": "Songs",
+        "package": "songs.v1.zii",
+        "key": "c_1.normalized.data.result"
+      },
+      "kafka": {
+        "topic": "aaa",
+        "groupId": "A"
+      }
+    },
+    "egress": {
+      "http": {
+        "headerTemplate": "testFlow.http.header.ejs",
+        "requestMethod": "GET",
+        "urlTemplate": "testFlow.http.url.ejs",
+        "parseAs": "JSON"
+      }
+    },
+    "collectors": ["child_flow_one"],
+    "transformers": ["testFlow_sample_kafka"],
+    "normalizer": {
+      "ziif": [
+        {
+          "key": "harvested.child_flow_one.normalized.data.result",
+          "as": "child_one_result"
+        }
+      ]
+    },
+    "conditions": [
+      {
+        "nextFlowKey": "child_flow_one",
+        "as": "c_1",
+        "expression": {
+          "$ne": [{"value": null}, {"key": "normalized.data.child_one_result"}]
+        },
+        "logs": {
+          "success": {
+            "tag": "flow main_flow",
+            "selectors": [],
+            "level": "debug",
+            "description": "flow succeeded"
+          },
+          "fail": {
+            "tag": "flow main_flow",
+            "selectors": [],
+            "level": "error",
+            "description": "flow not succeeded"
+          }
+        }
+      }
+    ]
+  },
+  {
+    "key": "child_flow_one",
+    "ingress": {
+      "grpc": {
+        "method": "GetChat",
+        "service": "Songs",
+        "package": "songs.v1.zii",
+        "key": "payload"
+      },
+      "kafka": {
+        "topic": "aaa",
+        "groupId": "A"
+      }
+    },
+    "transformers": ["testFlow_sample_name"],
+    "normalizer": {
+      "ziif": [
+        {
+          "key": "transformed.testFlow_sample_name",
+          "as": "result"
+        }
+      ]
+    },
+    "conditions": [
+      {
+        "terminal": true,
+        "expression": {
+          "$ne": [{"value": null}, {"key": "normalized.data.result"}]
+        },
+        "logs": {
+          "success": {
+            "tag": "flow child_flow_one",
+            "description": "flow succeeded",
+            "selectors": [
+              {
+                "key": "flowKey",
+                "as": "related_flow_key"
+              },
+              {
+                "key": "contextId",
+                "as": "context_id"
+              }
+            ]
+          }
+        }
+      }
+    ]
+  }
+]
